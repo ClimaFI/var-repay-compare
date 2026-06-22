@@ -1,0 +1,16 @@
+{
+  "minKg": 150,
+  "maxKg": 450,
+  "kgPeriod": "weekly",
+  "months": 18,
+  "price": 200000,
+  "deposit": 30000,
+  "financeCharge": 20,
+  "financeChargeType": "percent",
+  "variableFinanceCharge": 15,
+  "variableFinanceChargeType": "percent",
+  "basePayment": 1000,
+  "usageRate": 7,
+  "kgPerKwh": 7.5,
+  "seed": 41
+}

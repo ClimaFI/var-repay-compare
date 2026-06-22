@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agsol Variable Pay Comparison</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #16231f;
+        --muted: #64756f;
+        --line: #dce4df;
+        --paper: #f7faf6;
+        --surface: #ffffff;
+        --field: #f1f5f2;
+        --green: #9dc7b6;
+        --green-deep: #357a5c;
+        --gold: #f2b21d;
+        --red: #c86f47;
+        --teal: #1d7880;
+        --shadow: 0 18px 42px rgba(31, 53, 44, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1160px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 30px 0 44px;
+      }
+
+      header {
+        margin-bottom: 18px;
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.65rem, 3.3vw, 3.05rem);
+        line-height: 1.04;
+        letter-spacing: 0;
+      }
+
+      h1 span {
+        display: block;
+      }
+
+      .title-vs {
+        margin: 4px 0;
+        color: var(--ink);
+        font-size: 0.52em;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: lowercase;
+      }
+
+      .lede {
+        margin: 8px 0 0;
+        color: var(--green-deep);
+        font-size: clamp(1.04rem, 1.55vw, 1.36rem);
+        font-weight: 600;
+      }
+
+      .scenario {
+        margin-bottom: 18px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+
+      .scenario-main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: end;
+      }
+
+      .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        min-width: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 76px;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .field-row.with-select {
+        grid-template-columns: minmax(0, 1fr) 118px;
+      }
+
+      input,
+      select {
+        min-width: 0;
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--field);
+        color: var(--ink);
+        padding: 10px 11px;
+        outline: 0;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--green-deep);
+        box-shadow: 0 0 0 3px rgba(53, 122, 92, 0.15);
+      }
+
+      .unit {
+        overflow: hidden;
+        color: var(--muted);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.82rem;
+      }
+
+      .button {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        border: 1px solid var(--green-deep);
+        border-radius: 6px;
+        background: var(--green-deep);
+        color: #fff;
+        cursor: pointer;
+        padding: 10px 14px;
+        white-space: nowrap;
+      }
+
+      .button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .layout[hidden] {
+        display: none;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .panel-inner {
+        padding: 18px;
+      }
+
+      .panel h2,
+      .panel h3 {
+        margin: 0 0 14px;
+        font-size: 1rem;
+        letter-spacing: 0;
+      }
+
+      .chart-panel .panel-inner {
+        padding: 24px 24px 20px;
+      }
+
+      .chart-title {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 18px;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .chart-title h2 {
+        margin: 0;
+        font-size: clamp(1.35rem, 3vw, 2.4rem);
+      }
+
+      .shortfall-note {
+        color: var(--red);
+        font-weight: 700;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 480px;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .key {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .box {
+        width: 22px;
+        height: 18px;
+        border-radius: 2px;
+      }
+
+      .box.variable {
+        background: var(--green);
+      }
+
+      .box.shortfall {
+        background: var(--red);
+      }
+
+      .line-key {
+        width: 30px;
+        height: 0;
+        border-top: 4px dashed var(--gold);
+      }
+
+      .payoff-key {
+        width: 0;
+        height: 22px;
+        border-left: 4px solid var(--teal);
+      }
+
+      .summary {
+        display: grid;
+        gap: 12px;
+      }
+
+      .metric {
+        min-height: 108px;
+        border: 1px solid var(--line);
+        background: #fbfdfb;
+        padding: 15px;
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 7px;
+        overflow-wrap: anywhere;
+        font-size: 1.75rem;
+        line-height: 1.05;
+      }
+
+      .metric small {
+        display: block;
+        margin-top: 7px;
+        color: var(--muted);
+        white-space: pre-line;
+      }
+
+      details {
+        margin-top: 18px;
+      }
+
+      summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--green-deep);
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .advanced-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+
+      table {
+        width: 100%;
+        margin-top: 18px;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      th,
+      td {
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--line);
+        text-align: right;
+      }
+
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      footer {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      @media (max-width: 940px) {
+        header,
+        .scenario-main,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .scenario-grid,
+        .advanced-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+      }
+
+      @media (max-width: 620px) {
+        .shell {
+          width: min(100% - 20px, 1160px);
+          padding-top: 16px;
+        }
+
+        .scenario,
+        .panel-inner,
+        .chart-panel .panel-inner {
+          padding: 14px;
+        }
+
+        .scenario-grid,
+        .advanced-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .field-row {
+          grid-template-columns: minmax(0, 1fr) 64px;
+        }
+
+        canvas {
+          height: 390px;
+        }
+
+        th,
+        td {
+          padding: 9px 5px;
+          font-size: 0.82rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <div>
+          <h1>
+            <span>Variable Milling Repayments</span>
+            <span class="title-vs">vs.</span>
+            <span>Fixed Buy Now Pay Later (BNPL)</span>
+          </h1>
+          <p class="lede">
+            Generate a monthly milling pattern and compare a usage-linked
+            repayment with a fixed payment obligation.
+          </p>
+        </div>
+      </header>
+
+      <section class="scenario" aria-label="Milling range">
+        <div class="scenario-main">
+          <div class="scenario-grid">
+            <label>
+              Minimum grain milled
+              <div class="field-row">
+                <input id="minKg" type="number" min="0" step="10" value="150" />
+                <span class="unit">kg</span>
+              </div>
+            </label>
+            <label>
+              Maximum grain milled
+              <div class="field-row">
+                <input id="maxKg" type="number" min="0" step="10" value="450" />
+                <span class="unit">kg</span>
+              </div>
+            </label>
+            <label>
+              Range period
+              <select id="kgPeriod">
+                <option value="monthly">monthly</option>
+                <option value="weekly" selected>weekly</option>
+              </select>
+            </label>
+          </div>
+          <button class="button" id="randomize" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Generate
+          </button>
+        </div>
+
+        <details>
+            <summary>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z" fill="none" stroke="currentColor" stroke-width="2" />
+                <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 0 1-2.97 2.97l-.04-.04a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.1 1.66V21.3a2.1 2.1 0 0 1-4.2 0v-.05a1.8 1.8 0 0 0-1.1-1.66 1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 1 1-2.97-2.97l.04-.04A1.8 1.8 0 0 0 3.8 15a1.8 1.8 0 0 0-1.66-1.1H2.1a2.1 2.1 0 0 1 0-4.2h.05A1.8 1.8 0 0 0 3.8 8.6a1.8 1.8 0 0 0-.36-1.98l-.04-.04a2.1 2.1 0 1 1 2.97-2.97l.04.04a1.8 1.8 0 0 0 1.98.36 1.8 1.8 0 0 0 1.1-1.66V2.3a2.1 2.1 0 0 1 4.2 0v.05a1.8 1.8 0 0 0 1.1 1.66 1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 1 1 2.97 2.97l-.04.04A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.66 1.1h.05a2.1 2.1 0 0 1 0 4.2h-.05A1.8 1.8 0 0 0 19.4 15Z" fill="none" stroke="currentColor" stroke-width="2" />
+              </svg>
+              Edit Assumptions
+            </summary>
+            <div class="advanced-grid">
+              <label>
+                Comparison period
+                <div class="field-row">
+                  <input id="months" type="number" min="3" max="60" step="1" value="18" />
+                  <span class="unit">months</span>
+                </div>
+              </label>
+              <label>
+                Mill package price
+                <div class="field-row">
+                  <input id="price" type="number" min="1000" step="5000" value="200000" />
+                  <span class="unit">KES</span>
+                </div>
+              </label>
+              <label>
+                Deposit
+                <div class="field-row">
+                  <input id="deposit" type="number" min="0" step="1000" value="30000" />
+                  <span class="unit">KES</span>
+                </div>
+              </label>
+              <label>
+                BNPL finance fee
+                <div class="field-row with-select">
+                  <input id="financeCharge" type="number" min="0" step="0.25" value="20" />
+                  <select id="financeChargeType" aria-label="BNPL finance fee type">
+                    <option value="percent">% p.a.</option>
+                    <option value="amount">KES</option>
+                  </select>
+                </div>
+              </label>
+              <label>
+                Variable finance fee
+                <div class="field-row with-select">
+                  <input id="variableFinanceCharge" type="number" min="0" step="0.25" value="15" />
+                  <select id="variableFinanceChargeType" aria-label="Variable finance fee type">
+                    <option value="percent">% p.a.</option>
+                    <option value="amount">KES</option>
+                  </select>
+                </div>
+              </label>
+              <label>
+                Variable base repayment
+                <div class="field-row">
+                  <input id="basePayment" type="number" min="0" step="100" value="1000" />
+                  <span class="unit">KES / week</span>
+                </div>
+              </label>
+              <label>
+                Usage repayment
+                <div class="field-row">
+                  <input id="usageRate" type="number" min="0" step="0.1" value="7" />
+                  <span class="unit">KES / kg</span>
+                </div>
+              </label>
+              <label>
+                Sensor conversion
+                <div class="field-row">
+                  <input id="kgPerKwh" type="number" min="0.1" step="0.1" value="7.5" />
+                  <span class="unit">kg / kWh</span>
+                </div>
+              </label>
+              <label>
+                Sample seed
+                <div class="field-row">
+                  <input id="seed" type="number" min="1" step="1" value="41" />
+                  <span class="unit">id</span>
+                </div>
+              </label>
+            </div>
+        </details>
+      </section>
+
+      <section class="layout" id="results" hidden>
+        <div>
+          <section class="panel chart-panel">
+            <div class="panel-inner">
+              <div class="chart-title">
+                <h2>Variable income vs. a fixed repayment</h2>
+              </div>
+              <canvas id="incomeChart" width="920" height="520" aria-label="Monthly variable repayment chart"></canvas>
+              <div class="legend">
+                <span class="key"><span class="box variable"></span>Variable repayment from milling</span>
+                <span class="key"><span class="line-key"></span>Fixed BNPL repayment</span>
+                <span class="key"><span class="box shortfall"></span>Monthly shortfall</span>
+                <span class="key"><span class="payoff-key"></span>Variable payoff month</span>
+              </div>
+            </div>
+          </section>
+
+          <table aria-label="Monthly sample table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Kg milled</th>
+                <th>Sensor kWh</th>
+                <th>Variable paid</th>
+                <th>Shortfall</th>
+              </tr>
+            </thead>
+            <tbody id="projectionRows"></tbody>
+          </table>
+        </div>
+
+        <aside class="summary" aria-label="Summary results">
+          <article class="metric">
+            <span>Average monthly milling</span>
+            <strong id="averageKgOut">0 kg</strong>
+            <small id="rangeOut">within selected range</small>
+          </article>
+          <article class="metric">
+            <span>Average variable payment</span>
+            <strong id="averageVariableOut">KES 0</strong>
+            <small id="fixedPaymentOut">(BNPL: KES 0)</small>
+          </article>
+          <article class="metric">
+            <span>Months below fixed</span>
+            <strong id="shortfallMonthsOut">0</strong>
+            <small id="shortfallTotalOut">KES 0 total shortfall</small>
+          </article>
+          <article class="metric">
+            <span>Variable payoff estimate</span>
+            <strong id="payoffOut">0 mo</strong>
+            <small id="paidOut">Variable: KES 0
+(BNPL: KES 0)</small>
+          </article>
+        </aside>
+      </section>
+
+      <footer>
+        Variable repayment is estimated from grain milled. Sensor electricity is
+        shown using the editable kg-per-kWh conversion in assumptions.
+      </footer>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const editableIds = [
+        "minKg",
+        "maxKg",
+        "kgPeriod",
+        "months",
+        "price",
+        "deposit",
+        "financeCharge",
+        "financeChargeType",
+        "variableFinanceCharge",
+        "variableFinanceChargeType",
+        "basePayment",
+        "usageRate",
+        "kgPerKwh",
+        "seed",
+      ];
+      let hasGenerated = false;
+
+      const money = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "KES",
+        maximumFractionDigits: 0,
+      });
+
+      const preciseMoney = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "KES",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+      const wholeNumber = new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 0,
+      });
+
+      function numeric(id) {
+        const value = Number($(id).value);
+        return Number.isFinite(value) ? value : 0;
+      }
+
+      function applyDefaults(defaults) {
+        editableIds.forEach((id) => {
+          if (!Object.prototype.hasOwnProperty.call(defaults, id)) return;
+
+          const element = $(id);
+          element.value = String(defaults[id]);
+        });
+      }
+
+      async function loadDefaults() {
+        try {
+          const defaultsUrl = `defaults.json?v=${Date.now()}`;
+          const response = await fetch(defaultsUrl, { cache: "no-store" });
+          if (!response.ok) return;
+
+          applyDefaults(await response.json());
+        } catch (error) {
+          console.info("Using defaults embedded in index.html.");
+        }
+      }
+
+      function readInputs() {
+        const minKg = numeric("minKg");
+        const maxKg = numeric("maxKg");
+        return {
+          minKg: Math.min(minKg, maxKg),
+          maxKg: Math.max(minKg, maxKg),
+          kgPeriod: $("kgPeriod").value,
+          months: Math.max(1, Math.round(numeric("months"))),
+          price: numeric("price"),
+          deposit: numeric("deposit"),
+          financeCharge: numeric("financeCharge"),
+          financeChargeType: $("financeChargeType").value,
+          variableFinanceCharge: numeric("variableFinanceCharge"),
+          variableFinanceChargeType: $("variableFinanceChargeType").value,
+          basePayment: numeric("basePayment"),
+          usageRate: numeric("usageRate"),
+          kgPerKwh: Math.max(0.1, numeric("kgPerKwh")),
+          seed: Math.max(1, Math.round(numeric("seed"))),
+        };
+      }
+
+      function seededRandom(seed) {
+        let state = seed % 2147483647;
+        if (state <= 0) state += 2147483646;
+        return () => {
+          state = state * 16807 % 2147483647;
+          return (state - 1) / 2147483646;
+        };
+      }
+
+      function financeFeeAmount(price, value, type, months) {
+        return type === "percent" ? price * value / 100 * months / 12 : value;
+      }
+
+      function buildProjection(input) {
+        const rand = seededRandom(input.seed);
+        const baseMonthly = input.basePayment * 52 / 12;
+        const minMonthlyKg = input.kgPeriod === "weekly" ? input.minKg * 52 / 12 : input.minKg;
+        const maxMonthlyKg = input.kgPeriod === "weekly" ? input.maxKg * 52 / 12 : input.maxKg;
+        const principal = Math.max(0, input.price - input.deposit);
+        const fixedFinanceCharge = financeFeeAmount(
+          input.price,
+          input.financeCharge,
+          input.financeChargeType,
+          input.months
+        );
+        const fixedStartingBalance = principal + fixedFinanceCharge;
+        const fixedMonthly = fixedStartingBalance / input.months;
+        let fixedBalance = fixedStartingBalance;
+        let fixedPaid = input.deposit;
+        let variablePaymentsTotal = 0;
+        let fixedPayoffMonth = null;
+        let variablePayoffMonth = null;
+        const rows = [];
+
+        for (let month = 1; month <= input.months; month += 1) {
+          const kgMilled = minMonthlyKg + rand() * (maxMonthlyKg - minMonthlyKg);
+          const sensorKwh = kgMilled / input.kgPerKwh;
+          const scheduledVariable = baseMonthly + kgMilled * input.usageRate;
+          const fixedPayment = Math.min(fixedMonthly, Math.max(0, fixedBalance));
+          const shortfall = Math.max(0, fixedMonthly - scheduledVariable);
+          let variablePayment = 0;
+          let variableBalance = 0;
+
+          if (variablePayoffMonth === null) {
+            const variableFinanceCharge = financeFeeAmount(
+              input.price,
+              input.variableFinanceCharge,
+              input.variableFinanceChargeType,
+              month
+            );
+            const variableTargetBalance = principal + variableFinanceCharge;
+            const variableRemaining = Math.max(0, variableTargetBalance - variablePaymentsTotal);
+            variablePayment = Math.min(scheduledVariable, variableRemaining);
+            variablePaymentsTotal += variablePayment;
+            variableBalance = Math.max(0, variableTargetBalance - variablePaymentsTotal);
+
+            if (variableBalance <= 0) variablePayoffMonth = month;
+          }
+
+          fixedBalance -= fixedPayment;
+          fixedPaid += fixedPayment;
+
+          if (fixedPayoffMonth === null && fixedBalance <= 0) fixedPayoffMonth = month;
+
+          rows.push({
+            month,
+            kgMilled,
+            sensorKwh,
+            scheduledVariable,
+            variablePayment,
+            fixedMonthly,
+            shortfall,
+            fixedBalance: Math.max(0, fixedBalance),
+            variableBalance: Math.max(0, variableBalance),
+          });
+        }
+
+        const averageKg = average(rows, "kgMilled");
+        const averageVariable = average(rows, "scheduledVariable");
+        const shortfallMonths = rows.filter((row) => row.shortfall > 0.005).length;
+        const shortfallTotal = rows.reduce((total, row) => total + row.shortfall, 0);
+        const variablePaid = input.deposit + variablePaymentsTotal;
+
+        return {
+          minMonthlyKg,
+          maxMonthlyKg,
+          fixedMonthly,
+          averageKg,
+          averageVariable,
+          shortfallMonths,
+          shortfallTotal,
+          fixedPaid,
+          variablePaid,
+          variablePayoffMonth,
+          fixedPayoffMonth,
+          rows,
+        };
+      }
+
+      function average(rows, key) {
+        if (!rows.length) return 0;
+        return rows.reduce((total, row) => total + row[key], 0) / rows.length;
+      }
+
+      function update() {
+        const input = readInputs();
+        const result = buildProjection(input);
+
+        $("averageKgOut").textContent = `${wholeNumber.format(result.averageKg)} kg`;
+        $("rangeOut").textContent =
+          `${wholeNumber.format(result.minMonthlyKg)}-${wholeNumber.format(result.maxMonthlyKg)} kg per month`;
+        $("averageVariableOut").textContent = money.format(result.averageVariable);
+        $("fixedPaymentOut").textContent = `(BNPL: ${money.format(result.fixedMonthly)})`;
+        $("shortfallMonthsOut").textContent = String(result.shortfallMonths);
+        $("shortfallTotalOut").textContent = `${money.format(result.shortfallTotal)} total shortfall`;
+        $("payoffOut").textContent =
+          result.variablePayoffMonth === null ? `>${input.months} mo` : `${result.variablePayoffMonth} mo`;
+        $("paidOut").textContent =
+          `Variable: ${money.format(result.variablePaid)}\n(BNPL: ${money.format(result.fixedPaid)})`;
+        renderRows(result.rows);
+        drawChart(result.rows, result.fixedMonthly, result.variablePayoffMonth);
+      }
+
+      function renderRows(rows) {
+        $("projectionRows").innerHTML = rows.map((row) => `
+          <tr>
+            <td>${row.month}</td>
+            <td>${wholeNumber.format(row.kgMilled)}</td>
+            <td>${wholeNumber.format(row.sensorKwh)}</td>
+            <td>${money.format(row.scheduledVariable)}</td>
+            <td>${row.shortfall > 0 ? money.format(row.shortfall) : "-"}</td>
+          </tr>
+        `).join("");
+      }
+
+      function drawChart(rows, fixedMonthly, variablePayoffMonth) {
+        const canvas = $("incomeChart");
+        const context = canvas.getContext("2d");
+        const ratio = window.devicePixelRatio || 1;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        context.clearRect(0, 0, width, height);
+
+        const pad = { top: 28, right: 24, bottom: 46, left: 87 };
+        const chartWidth = width - pad.left - pad.right;
+        const chartHeight = height - pad.top - pad.bottom;
+        const maxValue = Math.max(
+          fixedMonthly * 1.22,
+          ...rows.map((row) => Math.max(row.scheduledVariable, fixedMonthly) * 1.08)
+        );
+        const baseline = pad.top + chartHeight;
+        const fixedY = yFor(fixedMonthly, maxValue, pad, chartHeight);
+        const barGap = Math.max(8, chartWidth / rows.length * 0.18);
+        const barWidth = Math.max(14, chartWidth / rows.length - barGap);
+
+        context.fillStyle = "#64756f";
+        context.font = "12px Inter, system-ui, sans-serif";
+        context.textAlign = "right";
+        context.textBaseline = "middle";
+        context.strokeStyle = "#dce4df";
+        context.lineWidth = 1;
+
+        for (let i = 0; i <= 4; i += 1) {
+          const value = maxValue * (1 - i / 4);
+          const y = pad.top + chartHeight * i / 4;
+          context.beginPath();
+          context.moveTo(pad.left, y);
+          context.lineTo(width - pad.right, y);
+          context.stroke();
+          context.fillText(money.format(value), pad.left - 10, y);
+        }
+
+        rows.forEach((row, index) => {
+          const left = pad.left + index * (chartWidth / rows.length) + barGap / 2;
+          const variableY = yFor(row.scheduledVariable, maxValue, pad, chartHeight);
+
+          context.fillStyle = "#9dc7b6";
+          context.fillRect(left, variableY, barWidth, baseline - variableY);
+
+          if (row.shortfall > 0) {
+            context.fillStyle = "#c86f47";
+            context.fillRect(left, fixedY, barWidth, variableY - fixedY);
+          }
+
+          context.fillStyle = "#64756f";
+          context.textAlign = "center";
+          context.textBaseline = "top";
+          context.fillText(String(row.month), left + barWidth / 2, baseline + 14);
+        });
+
+        if (variablePayoffMonth !== null) {
+          const payoffIndex = variablePayoffMonth - 1;
+          const payoffX =
+            pad.left + payoffIndex * (chartWidth / rows.length) + barGap / 2 + barWidth / 2;
+
+          context.strokeStyle = "#1d7880";
+          context.lineWidth = 4;
+          context.setLineDash([]);
+          context.beginPath();
+          context.moveTo(payoffX, pad.top);
+          context.lineTo(payoffX, baseline);
+          context.stroke();
+
+          context.fillStyle = "#1d7880";
+          context.font = "700 14px Inter, system-ui, sans-serif";
+          context.textAlign = payoffX > width - 170 ? "right" : "left";
+          context.textBaseline = "top";
+          context.fillText(
+            `Variable payoff: month ${variablePayoffMonth}`,
+            payoffX + (payoffX > width - 170 ? -8 : 8),
+            pad.top + 8
+          );
+        } else {
+          context.fillStyle = "#1d7880";
+          context.font = "700 14px Inter, system-ui, sans-serif";
+          context.textAlign = "right";
+          context.textBaseline = "top";
+          context.fillText("No variable payoff within period", width - pad.right, pad.top + 8);
+        }
+
+        context.strokeStyle = "#f2b21d";
+        context.lineWidth = 5;
+        context.setLineDash([18, 12]);
+        context.beginPath();
+        context.moveTo(pad.left, fixedY);
+        context.lineTo(width - pad.right, fixedY);
+        context.stroke();
+        context.setLineDash([]);
+
+        context.fillStyle = "#b07a10";
+        context.font = "700 15px Inter, system-ui, sans-serif";
+        context.textAlign = "right";
+        context.textBaseline = "bottom";
+        context.fillText("Fixed BNPL repayment", width - pad.right - 4, fixedY - 10);
+
+        context.strokeStyle = "#16231f";
+        context.lineWidth = 1.2;
+        context.beginPath();
+        context.moveTo(pad.left, pad.top);
+        context.lineTo(pad.left, baseline);
+        context.lineTo(width - pad.right, baseline);
+        context.stroke();
+      }
+
+      function yFor(value, maxValue, pad, chartHeight) {
+        return pad.top + chartHeight - (value / maxValue) * chartHeight;
+      }
+
+      editableIds.forEach((id) => {
+        $(id).addEventListener("input", () => {
+          if (hasGenerated) update();
+        });
+      });
+      $("randomize").addEventListener("click", () => {
+        hasGenerated = true;
+        $("results").hidden = false;
+        $("seed").value = String(numeric("seed") + 1);
+        update();
+      });
+      window.addEventListener("resize", () => {
+        if (hasGenerated) update();
+      });
+      loadDefaults();
+    </script>
+  </body>
+</html>
